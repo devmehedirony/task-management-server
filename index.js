@@ -39,7 +39,59 @@ async function run() {
     const doneCollections = client.db("taskDone").collection('dones')
 
   
+    // post apis
+
+    app.post('/users', async (req, res) => {
+      const user = req.body
+      const query = { email: user.email }
+      const isExits = await usersCollections.findOne(query)
+      if (isExits) {
+        return res.send({message: 'user already exits', insertedId: null})
+      }
+      const result = await usersCollections.insertOne(user)
+      res.send(result)
+    })
+
+    app.post('/todos', async (req, res) => {
+      const todo = req.body
+      const result = await todoCollections.insertOne(todo)
+      res.send(result)
+    })
     
+    app.post('/progress', async (req, res) => {
+      const progresss = req.body
+      const result = await todoCollections.insertOne(progresss)
+      res.send(result)
+    })
+
+    app.post('/done', async (req, res) => {
+      const dones = req.body
+      const result = await todoCollections.insertOne(dones)
+      res.send(result)
+    })
+
+
+    // get apis
+
+    app.get('/todos', async (req, res) => {
+      const result = await todoCollections.find().toArray()
+      res.send(result)
+    })
+
+    app.get('/progress', async (req, res) => {
+      const result = await progressCollections.find().toArray()
+      res.send(result)
+    })
+
+    app.get('/done', async (req, res) => {
+      const result = await doneCollections.find().toArray()
+      res.send(result)
+    })
+
+
+
+
+
 
 
 
