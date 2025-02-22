@@ -34,9 +34,7 @@ async function run() {
   try {
 
     const usersCollections = client.db("taskUsers").collection('users')
-    const todoCollections = client.db("allTodos").collection('todos')
-    const progressCollections = client.db("allProgress").collection('progress')
-    const doneCollections = client.db("taskDone").collection('dones')
+    const taskCollections = client.db("allTasks").collection('tasks')
 
   
     // post apis
@@ -52,17 +50,70 @@ async function run() {
       res.send(result)
     })
 
-    app.post('/todos', async (req, res) => {
-      const todo = req.body
-      const result = await todoCollections.insertOne(todo)
+    app.post('/tasks', async (req, res) => {
+      const task = req.body
+      const result = await taskCollections.insertOne(task)
       res.send(result)
     })
 
 
     // get apis
 
-    app.get('/todos', async (req, res) => {
-      const result = await todoCollections.find().toArray()
+    app.get('/tasks', async (req, res) => {
+      const { category } = req.query
+      
+      if (category == 'TODO') {
+        const query = { category: 'TODO' }
+        const result = await taskCollections.find(query).toArray()
+        return res.send(result)
+      }
+
+      if (category == 'PROGRESS') {
+        const query = { category: 'PROGRESS' }
+        const result = await taskCollections.find(query).toArray()
+        return res.send(result)
+      }
+
+      if (category == 'DONE') {
+        const query = { category: 'DONE' }
+        const result = await taskCollections.find(query).toArray()
+        return res.send(result)
+      }
+
+
+      const result = await taskCollections.find().toArray()
+      res.send(result)
+    })
+
+    app.get('/task/:id', async (req, res) => {
+      const id = req.params.id
+      const query = { _id: new ObjectId(id) }
+      const result = await taskCollections.findOne(query)
+      res.send(result)
+    })
+
+    // Update
+    app.patch('/task/:id', async (req, res) => {
+      const id = req.params.id
+      const update = req.body
+      const query = { _id: new ObjectId(id) }
+      const updatedDoc = {
+        $set: {
+          title: update.title,
+          description: update.description,
+          category: update.category,
+        }
+      }
+      const result = await taskCollections.updateOne(query, updatedDoc)
+      res.send(result)
+    })
+
+
+    // delete
+    app.delete('/task/:id', async (req, res) => {
+      const id = req.params.id
+      const query = { _id: new ObjectId(id) }
+      const result = await taskCollections.deleteOne(query)
       res.send(result)
     })
 
