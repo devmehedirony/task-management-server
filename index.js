@@ -57,18 +57,6 @@ async function run() {
       const result = await todoCollections.insertOne(todo)
       res.send(result)
     })
-    
-    app.post('/progress', async (req, res) => {
-      const progresss = req.body
-      const result = await todoCollections.insertOne(progresss)
-      res.send(result)
-    })
-
-    app.post('/done', async (req, res) => {
-      const dones = req.body
-      const result = await todoCollections.insertOne(dones)
-      res.send(result)
-    })
 
 
     // get apis
@@ -78,15 +66,7 @@ async function run() {
       res.send(result)
     })
 
-    app.get('/progress', async (req, res) => {
-      const result = await progressCollections.find().toArray()
-      res.send(result)
-    })
-
-    app.get('/done', async (req, res) => {
-      const result = await doneCollections.find().toArray()
-      res.send(result)
-    })
+    
 
 
 
