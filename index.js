@@ -2,8 +2,14 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const http = require('http');
+const socketIo = require('socket.io');
 const port = process.env.PORT || 5000
 const app = express()
+
+const server = http.createServer(app);
+const io = socketIo(server, { cors: { origin: '*' } });
+
 
 app.use(express.json())
 app.use(cors())
@@ -13,9 +19,9 @@ app.get('/', (req, res) => {
   res.send('Server is starting...')
 })
 
-app.listen(port, () => {
-  console.log(`port is starting...${port}`);
-})
+server.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@rony.exuff.mongodb.net/?retryWrites=true&w=majority&appName=rony`;
@@ -117,12 +123,32 @@ async function run() {
       res.send(result)
     })
 
+
+
     
+  // drop update
+    app.patch('/taskDrop/:id', async (req, res) => {
+      const id = req.params.id
+      const update = req.body
+      const query = { _id: new ObjectId(id) }
+      const updatedDoc = {
+        $set: {
+          category: update.category,
+        }
+      }
+      const result = await taskCollections.updateOne(query, updatedDoc)
+      io.emit('taskUpdated', { taskId: id, newCategory: update.category });
+      res.send(result)
+    })
 
 
 
-
-
+    io.on('connection', (socket) => {
+      console.log('User connected:', socket.id);
+      socket.on('disconnect', () => {
+        console.log('User disconnected:', socket.id);
+      });
+    });
 
 
 
